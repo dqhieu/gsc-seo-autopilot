@@ -69,8 +69,9 @@ Use `AskUserQuestion` to collect:
 - Default: `/blog`
 
 **Question 6: Frontmatter Format**
-- "What frontmatter format do you use?"
-- Options: `yaml`, `toml`
+- Explain: "Frontmatter is the metadata block at the top of each blog post (title, date, description, tags). Static site generators use it to render posts. Most frameworks (Next.js, Astro, Jekyll) use YAML format (`---` delimiters), while Hugo and Zola use TOML (`+++` delimiters)."
+- "Which frontmatter format does your site use?"
+- Options: `yaml` (Next.js, Astro, Jekyll, 11ty), `toml` (Hugo, Zola)
 - Default: `yaml`
 
 ### 4. Content Strategy
