@@ -1,0 +1,40 @@
+# GSC SEO Autopilot Configuration
+# Copy this file to your skill directory as seo-config.yaml:
+#   cp seo-config.example.yaml ~/.claude/skills/gsc-seo-autopilot/seo-config.yaml
+
+# Required
+site_domain: "example.com"
+gsc_property: "sc-domain:example.com"
+product_name: "My Product"
+product_description: "One-line description of what the product does"
+
+# Blog settings
+blog_post_dir: "content/blog"          # Where markdown posts go (relative to repo root)
+blog_index_file: ""                    # Optional: JSON/YAML file listing posts (e.g., "data/posts.json")
+blog_url_prefix: "/blog"              # URL prefix for blog posts
+frontmatter_format: "yaml"            # yaml or toml
+
+# Content strategy
+content_pillars:                       # 3-6 topic areas your blog covers
+  - "Topic A"
+  - "Topic B"
+blog_categories:                       # Blog post categories/tags
+  - "how-to"
+  - "comparison"
+  - "guide"
+
+# Keywords Everywhere API
+keywords_everywhere_api_key_env: "KEYWORDS_EVERYWHERE_API_KEY"  # Env var name holding API key
+ke_country: "us"                      # Country code for keyword data (us, gb, au, de, fr, etc.)
+ke_currency: "usd"                    # Currency for CPC data (usd, gbp, eur, etc.)
+ke_data_source: "gkp"                # Data source: gkp (Google Keyword Planner) or cli (Clickstream)
+ke_related_limit: 20                  # Max related keywords per seed
+
+# Optional
+app_url: ""                           # Primary CTA URL (e.g., app download, signup)
+internal_link_targets: []             # Key pages to cross-link to
+
+# Pipeline settings
+posts_per_run: 7                      # How many posts the auto pipeline creates
+report_dir: "plans/reports"           # Where reports are saved
+seed_keyword_count: 10                # How many top GSC keywords to use as seeds
