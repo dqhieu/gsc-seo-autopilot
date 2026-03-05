@@ -135,16 +135,13 @@ For each selected keyword, create a brief content brief including:
 ### 7. Create Blog Posts
 
 For each keyword, follow the instructions in `references/blog-writing-guide.md`:
-1. Create a new git branch: `blog/{keyword-slug}-{timestamp}`
-2. Research via WebSearch
-3. Write the full blog post (1500-2500 words)
-4. Save to `{blog_post_dir}/{slug}.md`
-5. Download thumbnail from Unsplash
-6. Update `blog_index_file` if configured
-7. Commit with message: `feat(blog): add post -- {title}`
-8. Push branch and create PR via `gh pr create`
+1. Research via WebSearch
+2. Write the full blog post (1500-2500 words)
+3. Save to `{blog_post_dir}/{slug}.md`
+4. Download thumbnail from Unsplash
+5. Update `blog_index_file` if configured
 
-**Important:** Create each post on its own branch. Return to main between posts.
+All posts are saved to the configured `blog_post_dir`. The user can review and commit them at their discretion.
 
 ### 8. Compile Summary Report
 
@@ -177,16 +174,17 @@ Create a comprehensive report:
 
 ## Blog Posts Created
 
-| # | Title | Target Keyword | Volume | Branch | PR |
-|---|-------|---------------|--------|--------|-----|
+| # | Title | Target Keyword | Volume | File |
+|---|-------|---------------|--------|------|
 (for each post created)
 
 ## Next Steps
 
-1. Review and merge blog post PRs
-2. Update sitemap after merging
-3. Monitor GSC for new keyword rankings in 2-4 weeks
-4. Address quick wins (title/meta optimizations)
+1. Review created blog posts for accuracy
+2. Commit and push when ready
+3. Update sitemap after publishing
+4. Monitor GSC for new keyword rankings in 2-4 weeks
+5. Address quick wins (title/meta optimizations)
 ```
 
 Save to `{report_dir}/seo-auto-{YYYY-MM-DD}.md`.
@@ -194,7 +192,7 @@ Save to `{report_dir}/seo-auto-{YYYY-MM-DD}.md`.
 ### 9. Output Summary
 
 Display to the user:
-- Number of posts created with PR links
+- Number of posts created with file paths
 - Top 5 quick wins to address manually
 - Key metrics from GSC
 - Next recommended run date (1 week from now)

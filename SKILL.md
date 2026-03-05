@@ -44,7 +44,7 @@ If the file does not exist, inform the user and suggest running `/gsc-seo-autopi
 | `/gsc-seo-autopilot:weekly` | GSC performance report only |
 | `/gsc-seo-autopilot:quick-wins` | Find low-hanging SEO opportunities |
 | `/gsc-seo-autopilot:brief` | Generate content brief for a keyword |
-| `/gsc-seo-autopilot:publish` | Write and publish a single blog post |
+| `/gsc-seo-autopilot:publish` | Write a single blog post for a keyword |
 
 ## Keywords Everywhere API Integration
 

@@ -8,15 +8,13 @@ Automated SEO pipeline for Claude Code. Monitors Google Search Console, expands 
 - Expands seed keywords using Keywords Everywhere API
 - Identifies quick wins (striking distance, low CTR, cannibalization)
 - Generates content briefs with SERP analysis
-- Writes and publishes SEO blog posts with proper frontmatter, internal links, and FAQ sections
-- Creates PRs for each blog post on separate branches
+- Writes SEO blog posts with proper frontmatter, internal links, and FAQ sections
 
 ## Prerequisites
 
 - [Claude Code](https://claude.ai/code) with MCP support
 - Google Search Console access for your site
 - Node.js (for Keywords Everywhere API calls)
-- `gh` CLI (for creating pull requests)
 
 ## Setup
 
@@ -72,16 +70,22 @@ export KEYWORDS_EVERYWHERE_API_KEY="your-key-here"
 
 ### 3. Install the Skill
 
-**Option A: Clone directly into skills directory**
+**Recommended: Using Skills CLI**
 
 ```bash
-git clone https://github.com/hieudinh/gsc-seo-autopilot.git ~/.claude/skills/gsc-seo-autopilot
+npx skills add dqhieu/gsc-seo-autopilot
 ```
 
-**Option B: Clone elsewhere and symlink**
+**Option B: Clone directly into skills directory**
 
 ```bash
-git clone https://github.com/hieudinh/gsc-seo-autopilot.git ~/Projects/gsc-seo-autopilot
+git clone https://github.com/dqhieu/gsc-seo-autopilot.git ~/.claude/skills/gsc-seo-autopilot
+```
+
+**Option C: Clone elsewhere and symlink**
+
+```bash
+git clone https://github.com/dqhieu/gsc-seo-autopilot.git ~/Projects/gsc-seo-autopilot
 ln -s ~/Projects/gsc-seo-autopilot ~/.claude/skills/gsc-seo-autopilot
 ```
 
@@ -110,7 +114,7 @@ Edit `seo-config.yaml` with your site details.
 | `/gsc-seo-autopilot:weekly` | Generate weekly GSC performance report |
 | `/gsc-seo-autopilot:quick-wins` | Find low-hanging SEO opportunities |
 | `/gsc-seo-autopilot:brief <keyword>` | Generate content brief for a keyword |
-| `/gsc-seo-autopilot:publish <keyword>` | Write a single blog post, create branch + PR |
+| `/gsc-seo-autopilot:publish <keyword>` | Write a single blog post for a keyword |
 
 ## Configuration Reference
 
@@ -144,7 +148,7 @@ All settings in `seo-config.yaml`:
 After running `/gsc-seo-autopilot:auto`, you get:
 
 - **GSC performance report** in `plans/reports/seo-auto-2026-03-05.md`
-- **7 blog post PRs** each on separate branches
+- **7 blog posts** saved to your configured blog directory
 - **Quick wins list** with actionable recommendations
 - **Keyword expansion data** with volume and competition metrics
 
@@ -164,8 +168,7 @@ Analysis                                    (filter by pillars,
 Quick Wins                                          v
 Report                                      Blog Post Creation
                                             (SERP research,
-                                             write, thumbnail,
-                                             branch, PR)
+                                             write, thumbnail)
 ```
 
 ## License

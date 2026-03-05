@@ -46,64 +46,67 @@ Use `AskUserQuestion` to collect:
 - Otherwise ask: "What is your GSC property? (e.g., sc-domain:example.com)"
 - Default: `sc-domain:{domain from Q1}`
 
-**Question 3: Product Name**
-- "What is your product/brand name?"
-- No default
-
-**Question 4: Product Description**
-- "One-line description of what your product does:"
-- No default
+**Question 3: Product Name & Description (auto-detected)**
+- Use `WebFetch` to load the site's homepage (`https://{domain}`) and extract:
+  - The product/brand name from the `<title>` tag or `<meta property="og:site_name">`
+  - A one-line description from `<meta name="description">` or `<meta property="og:description">`
+- Present the auto-detected values to the user for confirmation:
+  - "Detected product name: **{detected_name}**. Is this correct? (yes/edit)"
+  - "Detected description: **{detected_description}**. Is this correct? (yes/edit)"
+- If the homepage fetch fails, fall back to asking the user directly:
+  - "What is your product/brand name?"
+  - "One-line description of what your product does:"
 
 ### 3. Blog Settings
 
-**Question 5: Blog Post Directory**
+**Question 4: Blog Post Directory**
 - "Where should blog posts be saved? (relative to repo root)"
 - Options: `content/blog`, `src/posts`, `app/blog/posts`, `blog`, custom
 - Default: `content/blog`
 
-**Question 6: Blog URL Prefix**
+**Question 5: Blog URL Prefix**
 - "What is the URL prefix for blog posts? (e.g., /blog)"
 - Default: `/blog`
 
-**Question 7: Frontmatter Format**
+**Question 6: Frontmatter Format**
 - "What frontmatter format do you use?"
 - Options: `yaml`, `toml`
 - Default: `yaml`
 
 ### 4. Content Strategy
 
-**Question 8: Content Pillars**
+**Question 7: Content Pillars**
 - "List 3-6 topic areas your blog covers (comma-separated):"
 - Example: "productivity, project management, team collaboration"
 
-**Question 9: Blog Categories**
+**Question 8: Blog Categories**
 - "List blog post categories/tags you use (comma-separated):"
 - Example: "how-to, comparison, guide, tutorial"
 
 ### 5. Keywords Everywhere API
 
-**Question 10: API Key Validation**
+**Question 9: API Key Validation**
 - Check if `KEYWORDS_EVERYWHERE_API_KEY` env var is set
 - If set: "Keywords Everywhere API key detected. Using default env var name."
 - If not set: "Keywords Everywhere API key not found. The skill will work without it (using GSC + WebSearch), but keyword expansion will be limited. You can add it later to your shell profile."
 
-**Question 11: Target Country**
+**Question 10: Target Country**
 - "What country should keyword data target?"
 - Options: `us`, `gb`, `au`, `ca`, `de`, `fr`, `in`, custom
 - Default: `us`
 
-**Question 12: Currency**
+**Question 11: Currency**
 - "What currency for CPC data?"
 - Options: `usd`, `gbp`, `eur`, `aud`, `cad`, custom
 - Default: `usd`
 
 ### 6. Optional Settings
 
-**Question 13: App/CTA URL**
+**Question 12: App/CTA URL**
 - "Primary CTA URL for blog posts (e.g., signup page, app download). Leave empty to skip:"
 - Default: empty
 
-**Question 14: Internal Link Targets**
+**Question 13: Internal Link Targets**
 - "Key pages to cross-link from blog posts (comma-separated URLs, or empty to skip):"
 - Default: empty
 
