@@ -16,7 +16,7 @@ Create a detailed content brief for a target keyword, including SERP analysis, k
 
 ### 1. Load Config
 
-Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot:init`.
+Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot init`.
 
 ### 2. SERP Research
 

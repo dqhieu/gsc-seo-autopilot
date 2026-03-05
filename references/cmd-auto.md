@@ -12,7 +12,7 @@ Full automated pipeline: pull GSC data, expand keywords, identify opportunities,
 
 ### 1. Load Config
 
-Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot:init`.
+Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot init`.
 
 Store config values for use throughout this pipeline:
 - `site_domain`, `gsc_property`, `product_name`, `product_description`

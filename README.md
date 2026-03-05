@@ -94,7 +94,7 @@ ln -s ~/Projects/gsc-seo-autopilot ~/.claude/skills/gsc-seo-autopilot
 Run the interactive setup wizard:
 
 ```
-/gsc-seo-autopilot:init
+/gsc-seo-autopilot init
 ```
 
 Or manually copy and edit the config:
@@ -105,16 +105,20 @@ cp ~/.claude/skills/gsc-seo-autopilot/seo-config.example.yaml ~/.claude/skills/g
 
 Edit `seo-config.yaml` with your site details.
 
-## Commands
+## Usage
+
+The skill is invoked as `/gsc-seo-autopilot` with an argument:
 
 | Command | Description |
 |---------|-------------|
-| `/gsc-seo-autopilot:auto` | Full pipeline: GSC analysis + keyword expansion + blog creation |
-| `/gsc-seo-autopilot:init` | Interactive configuration wizard |
-| `/gsc-seo-autopilot:weekly` | Generate weekly GSC performance report |
-| `/gsc-seo-autopilot:quick-wins` | Find low-hanging SEO opportunities |
-| `/gsc-seo-autopilot:brief <keyword>` | Generate content brief for a keyword |
-| `/gsc-seo-autopilot:publish <keyword>` | Write a single blog post for a keyword |
+| `/gsc-seo-autopilot auto` | Full pipeline: GSC analysis + keyword expansion + blog creation |
+| `/gsc-seo-autopilot init` | Interactive configuration wizard |
+| `/gsc-seo-autopilot weekly` | Generate weekly GSC performance report |
+| `/gsc-seo-autopilot quick-wins` | Find low-hanging SEO opportunities |
+| `/gsc-seo-autopilot brief <keyword>` | Generate content brief for a keyword |
+| `/gsc-seo-autopilot publish <keyword>` | Write a single blog post for a keyword |
+
+Running `/gsc-seo-autopilot` without arguments defaults to `auto`.
 
 ## Configuration Reference
 
@@ -145,7 +149,7 @@ All settings in `seo-config.yaml`:
 
 ## Example Output
 
-After running `/gsc-seo-autopilot:auto`, you get:
+After running `/gsc-seo-autopilot auto`, you get:
 
 - **GSC performance report** in `plans/reports/seo-auto-2026-03-05.md`
 - **7 blog posts** saved to your configured blog directory

@@ -16,7 +16,7 @@ Write a single SEO-optimized blog post and save it to the configured blog direct
 
 ### 1. Load Config
 
-Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot:init`.
+Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot init`.
 
 ### 2. Generate Content Brief
 

@@ -12,7 +12,7 @@ Identify low-hanging SEO opportunities where small changes can yield significant
 
 ### 1. Load Config
 
-Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot:init`.
+Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If missing, tell the user to run `/gsc-seo-autopilot init`.
 
 ### 2. Pull GSC Data
 

@@ -124,4 +124,4 @@ Use the `Write` tool. Include comments explaining each field.
 Output:
 - Summary of the configuration
 - Path where config was saved
-- Suggest next steps: "Run `/gsc-seo-autopilot:weekly` to generate your first GSC report, or `/gsc-seo-autopilot:auto` for the full pipeline."
+- Suggest next steps: "Run `/gsc-seo-autopilot weekly` to generate your first GSC report, or `/gsc-seo-autopilot auto` for the full pipeline."
