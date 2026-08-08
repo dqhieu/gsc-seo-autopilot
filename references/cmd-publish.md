@@ -24,7 +24,7 @@ Follow the same SERP research and keyword expansion steps from `commands/brief.m
 - WebSearch the target keyword
 - Analyze top 10 SERP results
 - Pull GSC data for existing rankings
-- Expand keywords via Keywords Everywhere API (if key available)
+- Expand keywords via the Keywords Everywhere MCP tools (if connected)
 
 ### 3. Write Blog Post
 

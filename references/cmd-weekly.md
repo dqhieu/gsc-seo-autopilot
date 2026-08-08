@@ -20,55 +20,59 @@ Use `mcp__gsc__search_analytics` to fetch the last 28 days of data for the confi
 
 **Query 1: Top queries (last 28 days)**
 ```
-site_url: {gsc_property}
-start_date: (28 days ago, YYYY-MM-DD)
-end_date: (yesterday, YYYY-MM-DD)
-dimensions: ["query"]
-row_limit: 50
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+dimensions: "query"
+rowLimit: 50
 ```
 
 **Query 2: Top pages (last 28 days)**
 ```
-site_url: {gsc_property}
-start_date: (28 days ago, YYYY-MM-DD)
-end_date: (yesterday, YYYY-MM-DD)
-dimensions: ["page"]
-row_limit: 30
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+dimensions: "page"
+rowLimit: 30
 ```
 
 **Query 3: Previous period comparison (28-56 days ago)**
 ```
-site_url: {gsc_property}
-start_date: (56 days ago, YYYY-MM-DD)
-end_date: (29 days ago, YYYY-MM-DD)
-dimensions: ["query"]
-row_limit: 50
+siteUrl: {gsc_property}
+startDate: (56 days ago, YYYY-MM-DD)
+endDate: (29 days ago, YYYY-MM-DD)
+dimensions: "query"
+rowLimit: 50
 ```
 
 ### 3. Keywords Everywhere Expansion
 
-Take the top `{seed_keyword_count}` queries by clicks from GSC data. For each seed keyword, call the Keywords Everywhere API to get related keywords:
+Take the top `{seed_keyword_count}` queries by clicks from GSC data. For each seed keyword, call
+`mcp__keywords-everywhere__get_related_keywords`:
 
-```bash
-node -e "
-const key = process.env['{keywords_everywhere_api_key_env}'];
-if (!key) { console.log('SKIP: API key not set'); process.exit(0); }
-const https = require('https');
-const data = new URLSearchParams();
-data.append('apiKey', key);
-data.append('keyword', 'SEED_KEYWORD_HERE');
-data.append('country', '{ke_country}');
-data.append('currency', '{ke_currency}');
-data.append('dataSource', '{ke_data_source}');
-data.append('num', '{ke_related_limit}');
-const opts = { hostname: 'api.keywordseverywhere.com', path: '/v1/get_related_keywords', method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
-const req = https.request(opts, res => { let b=''; res.on('data',c=>b+=c); res.on('end',()=>console.log(b)); });
-req.write(data.toString());
-req.end();
-"
+```
+keyword: {seed keyword}
+num: {ke_related_limit}
 ```
 
-If the API key is not set, skip this step and note it in the report.
+Returns `{"data": ["related keyword", ...]}` -- keyword strings only, no metrics. This costs
+2 credits per keyword returned.
+
+To report volume and CPC alongside them, pass the collected keywords to
+`mcp__keywords-everywhere__get_keyword_data` (all four arguments required, **maximum 100
+keywords per call**, 1 credit each):
+
+```
+kw: [array of keywords, max 100]
+country: {ke_country}
+currency: {ke_currency}
+dataSource: {ke_data_source}
+```
+
+Read `vol` for volume, `cpc.value` for CPC, and `competition` from each entry in `data`.
+
+If the `mcp__keywords-everywhere__*` tools are unavailable, skip this step and note it in the
+report.
 
 ### 4. Analyze & Compile Report
 

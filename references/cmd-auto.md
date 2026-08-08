@@ -18,7 +18,7 @@ Store config values for use throughout this pipeline:
 - `site_domain`, `gsc_property`, `product_name`, `product_description`
 - `blog_post_dir`, `blog_index_file`, `blog_url_prefix`, `frontmatter_format`
 - `content_pillars`, `blog_categories`
-- `keywords_everywhere_api_key_env`, `ke_country`, `ke_currency`, `ke_data_source`, `ke_related_limit`
+- `ke_country`, `ke_currency`, `ke_data_source`, `ke_related_limit`
 - `app_url`, `internal_link_targets`
 - `posts_per_run`, `report_dir`, `seed_keyword_count`
 
@@ -28,89 +28,113 @@ Use `mcp__gsc__search_analytics` to pull data:
 
 **Top queries (last 28 days):**
 ```
-site_url: {gsc_property}
-start_date: (28 days ago, YYYY-MM-DD)
-end_date: (yesterday, YYYY-MM-DD)
-dimensions: ["query"]
-row_limit: 100
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+dimensions: "query"
+rowLimit: 100
 ```
 
 **Top pages (last 28 days):**
 ```
-site_url: {gsc_property}
-start_date: (28 days ago, YYYY-MM-DD)
-end_date: (yesterday, YYYY-MM-DD)
-dimensions: ["page"]
-row_limit: 50
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+dimensions: "page"
+rowLimit: 50
 ```
 
 **Query + page combinations for cannibalization check:**
 ```
-site_url: {gsc_property}
-start_date: (28 days ago, YYYY-MM-DD)
-end_date: (yesterday, YYYY-MM-DD)
-dimensions: ["query", "page"]
-row_limit: 200
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+dimensions: "query,page"
+rowLimit: 200
 ```
 
 ### 3. Quick Wins Detection
 
-Use `mcp__gsc__detect_quick_wins` if available:
+Use `mcp__gsc__detect_quick_wins` if available. `startDate` and `endDate` are required; the
+threshold defaults (position 4-10, CTR <= 2%) are narrower than the criteria below, so pass
+them explicitly:
 ```
-site_url: {gsc_property}
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+positionRangeMin: 5
+positionRangeMax: 20
+minImpressions: 30
+maxCtr: 3
 ```
 
-Also manually identify from step 2 data:
+The tool ANDs all four thresholds, so its output is only the overlap of the categories below
+(it cannot return a striking-distance keyword whose CTR is already above 3%). It also has no
+row limit and returns every match, which can be a very large response on an established site.
+Results are pre-sorted by `additionalClicks` descending -- the report only needs the top 10,
+so read from the top and stop there. Treat it as a ranked starting point, not the full set —
+always also identify manually from step 2 data:
 - Striking distance keywords (position 5-15, impressions > 50)
 - Low CTR / high impression keywords (impressions > 100, CTR < 3%)
 - Page 2 keywords (position 11-20)
 
 ### 4. Keyword Expansion via Keywords Everywhere
 
-Take the top `{seed_keyword_count}` queries by clicks. For each seed keyword:
+If the `mcp__keywords-everywhere__*` tools are unavailable, skip to the fallback at the end of
+this step. Do not fail the run.
 
-```bash
-node -e "
-const key = process.env['{keywords_everywhere_api_key_env}'];
-if (!key) { console.log('SKIP: API key not set'); process.exit(0); }
-const https = require('https');
-const data = new URLSearchParams();
-data.append('apiKey', key);
-data.append('keyword', 'SEED_KEYWORD_HERE');
-data.append('country', '{ke_country}');
-data.append('currency', '{ke_currency}');
-data.append('dataSource', '{ke_data_source}');
-data.append('num', '{ke_related_limit}');
-const opts = { hostname: 'api.keywordseverywhere.com', path: '/v1/get_related_keywords', method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
-const req = https.request(opts, res => { let b=''; res.on('data',c=>b+=c); res.on('end',()=>console.log(b)); });
-req.write(data.toString());
-req.end();
-"
+Take the top `{seed_keyword_count}` queries by clicks. For each seed keyword, call
+`mcp__keywords-everywhere__get_related_keywords`:
+
+```
+keyword: {seed keyword}
+num: {ke_related_limit}
 ```
 
-Collect all related keywords. Then batch-fetch volume data:
+Returns `{"data": ["related keyword", ...], "credits_consumed": N}` -- a flat array of strings
+with no metrics attached. `country`, `currency`, and `dataSource` are not parameters of this
+tool; they apply only to `get_keyword_data` below.
 
-```bash
-node -e "
-const key = process.env['{keywords_everywhere_api_key_env}'];
-if (!key) { console.log('SKIP: API key not set'); process.exit(0); }
-const https = require('https');
-const data = new URLSearchParams();
-data.append('apiKey', key);
-data.append('country', '{ke_country}');
-data.append('currency', '{ke_currency}');
-data.append('dataSource', '{ke_data_source}');
-// Append each candidate keyword:
-// data.append('kw[]', 'keyword1');
-// data.append('kw[]', 'keyword2');
-const opts = { hostname: 'api.keywordseverywhere.com', path: '/v1/get_keyword_data', method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
-const req = https.request(opts, res => { let b=''; res.on('data',c=>b+=c); res.on('end',()=>console.log(b)); });
-req.write(data.toString());
-req.end();
-"
+Optionally also call `mcp__keywords-everywhere__get_pasf_keywords` with the same arguments for
+"People Also Search For" terms, which surface question-shaped and adjacent-intent keywords that
+related-keyword expansion tends to miss.
+
+**Cost check before expanding.** Both tools charge 2 credits per keyword *returned*, so this
+step costs roughly `{seed_keyword_count} x {ke_related_limit} x 2` credits (x2 again if you also
+run PASF). At the defaults that is ~400 credits. Call
+`mcp__keywords-everywhere__get_credit_balance` first if the balance is unknown, and never pass a
+large literal to `num` -- always use `{ke_related_limit}`.
+
+Collect and de-duplicate all related keywords, then batch-fetch metrics with
+`mcp__keywords-everywhere__get_keyword_data`:
+
+```
+kw: [array of keywords, MAXIMUM 100 per call]
+country: {ke_country}
+currency: {ke_currency}
+dataSource: {ke_data_source}
 ```
 
-If API key is not set, use `WebSearch` for "related searches" and "people also ask" data for the top seed keywords.
+All four arguments are required. **Chunk the list into batches of 100** -- 10 seeds at the
+default limit yields ~200 candidates, which is two calls. Each keyword costs 1 credit.
+
+The response is `{"data": [...], "credits": N, "credits_consumed": N}` where each entry is:
+
+| Field | Meaning |
+|-------|---------|
+| `keyword` | the input keyword |
+| `vol` | monthly search volume (integer) |
+| `cpc.value` | cost per click as a string, e.g. `"1.23"` |
+| `cpc.currency` | currency symbol, e.g. `"$"` |
+| `competition` | 0.0-1.0 float |
+| `trend` | 12 objects of `{month, year, value}` |
+
+Use `vol` and `competition` for the selection criteria in step 5. A keyword absent from `data`
+has no Keyword Planner data -- treat its volume as unknown, not zero.
+
+**Fallback if the MCP tools are unavailable:** use `WebSearch` for "related searches" and
+"people also ask" results on the top seed keywords, and note in the report that volume and
+competition figures were unavailable.
 
 ### 5. Keyword Selection for Blog Posts
 

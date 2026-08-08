@@ -54,19 +54,31 @@ Add to `~/.claude/mcp.json`:
 
 Restart Claude Code. The `mcp__gsc__list_sites` tool should show your GSC properties.
 
-### 2. Keywords Everywhere API (Optional)
+### 2. Keywords Everywhere MCP Server (Optional)
 
-Provides keyword volume, CPC, and related keyword data. The skill works without it (using GSC + WebSearch), but keyword expansion will be limited.
+Provides keyword volume, CPC, competition, related keywords, and "People Also Search For" data.
+The skill works without it (using GSC + WebSearch), but keyword expansion will be limited.
 
 1. Sign up at [keywordseverywhere.com](https://keywordseverywhere.com/) and get your API key
-2. Add to your shell profile:
+2. Add the hosted MCP server:
 
 ```bash
-# ~/.zshrc or ~/.bashrc
-export KEYWORDS_EVERYWHERE_API_KEY="your-key-here"
+claude mcp add --transport http keywords-everywhere \
+  https://mcp.keywordseverywhere.com/mcp \
+  -H "Authorization: Bearer your-key-here"
 ```
 
-3. Restart terminal or `source ~/.zshrc`
+3. Restart Claude Code, then run `claude mcp list` to confirm it shows **✔ Connected**
+
+The API key doubles as the bearer token, so no separate OAuth step is needed. Other transports
+(stdio via `mcp-remote`, OAuth) are documented in the
+[KE MCP integration guide](https://api.keywordseverywhere.com/docs/#/mcp_integration); the HTTP
+transport above is the one Keywords Everywhere recommends for Claude Code, and it avoids running
+a local Node wrapper.
+
+**Credit costs.** Related-keyword and PASF expansion cost **2 credits per keyword returned**;
+`get_keyword_data` costs **1 credit per keyword**. A default `auto` run (10 seeds x 20 related)
+is roughly 400-600 credits. Raising `ke_related_limit` scales that linearly.
 
 ### 3. Install the Skill
 
@@ -136,11 +148,10 @@ All settings in `seo-config.yaml`:
 | `frontmatter_format` | No | `yaml` | Frontmatter format: `yaml` or `toml` |
 | `content_pillars` | No | `[]` | 3-6 topic areas your blog covers |
 | `blog_categories` | No | `[]` | Blog post categories/tags |
-| `keywords_everywhere_api_key_env` | No | `KEYWORDS_EVERYWHERE_API_KEY` | Env var name holding KE API key |
-| `ke_country` | No | `us` | Country code for keyword data |
-| `ke_currency` | No | `usd` | Currency for CPC data |
-| `ke_data_source` | No | `gkp` | KE data source: `gkp` or `cli` |
-| `ke_related_limit` | No | `20` | Max related keywords per seed |
+| `ke_country` | No | `us` | Country code for keyword data (`get_keyword_data` only) |
+| `ke_currency` | No | `usd` | Currency for CPC data (`get_keyword_data` only) |
+| `ke_data_source` | No | `gkp` | KE data source: `gkp` or `cli` (`get_keyword_data` only) |
+| `ke_related_limit` | No | `20` | Max related keywords per seed (2 credits each) |
 | `app_url` | No | `""` | Primary CTA URL for blog posts |
 | `internal_link_targets` | No | `[]` | Pages to cross-link from blog posts |
 | `posts_per_run` | No | `7` | Blog posts created per auto run |

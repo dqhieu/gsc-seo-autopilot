@@ -32,60 +32,51 @@ Use `WebSearch` to search for the target keyword. Analyze the top 10 results:
 Use `mcp__gsc__search_analytics` to check if the site already ranks for this keyword or related terms:
 
 ```
-site_url: {gsc_property}
-start_date: (90 days ago)
-end_date: (yesterday)
-dimensions: ["query", "page"]
-query_contains: "{keyword}"
-row_limit: 20
+siteUrl: {gsc_property}
+startDate: (90 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+dimensions: "query,page"
+queryFilter: "{keyword}"
+filterOperator: contains
+rowLimit: 20
 ```
 
 ### 4. Keyword Expansion
 
-Use Keywords Everywhere API to get related keywords and volume data:
+Use the Keywords Everywhere MCP tools to get related keywords and volume data.
 
-**Related keywords:**
-```bash
-node -e "
-const key = process.env['{keywords_everywhere_api_key_env}'];
-if (!key) { console.log('SKIP: API key not set'); process.exit(0); }
-const https = require('https');
-const data = new URLSearchParams();
-data.append('apiKey', key);
-data.append('keyword', '{keyword}');
-data.append('country', '{ke_country}');
-data.append('currency', '{ke_currency}');
-data.append('dataSource', '{ke_data_source}');
-data.append('num', '{ke_related_limit}');
-const opts = { hostname: 'api.keywordseverywhere.com', path: '/v1/get_related_keywords', method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
-const req = https.request(opts, res => { let b=''; res.on('data',c=>b+=c); res.on('end',()=>console.log(b)); });
-req.write(data.toString());
-req.end();
-"
+**Related keywords** -- `mcp__keywords-everywhere__get_related_keywords`:
+```
+keyword: {keyword}
+num: {ke_related_limit}
 ```
 
-**Volume data for keyword cluster:**
-```bash
-node -e "
-const key = process.env['{keywords_everywhere_api_key_env}'];
-if (!key) { console.log('SKIP: API key not set'); process.exit(0); }
-const https = require('https');
-const keywords = JSON.stringify(['KEYWORD_1', 'KEYWORD_2', 'KEYWORD_3']);
-const data = new URLSearchParams();
-data.append('apiKey', key);
-data.append('country', '{ke_country}');
-data.append('currency', '{ke_currency}');
-data.append('dataSource', '{ke_data_source}');
-data.append('kw[]', 'KEYWORD_1');
-data.append('kw[]', 'KEYWORD_2');
-const opts = { hostname: 'api.keywordseverywhere.com', path: '/v1/get_keyword_data', method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
-const req = https.request(opts, res => { let b=''; res.on('data',c=>b+=c); res.on('end',()=>console.log(b)); });
-req.write(data.toString());
-req.end();
-"
+**"People Also Search For"** -- `mcp__keywords-everywhere__get_pasf_keywords`, same arguments.
+PASF terms are usually question-shaped, which makes them good H2/H3 and FAQ candidates for the
+outline below.
+
+Both return `{"data": ["keyword", ...]}` -- strings only, no metrics -- and both cost 2 credits
+per keyword returned. Neither accepts `country`, `currency`, or `dataSource`.
+
+**Volume data for the keyword cluster** -- `mcp__keywords-everywhere__get_keyword_data`:
+```
+kw: [{keyword}, plus the related and PASF terms -- MAXIMUM 100 per call]
+country: {ke_country}
+currency: {ke_currency}
+dataSource: {ke_data_source}
 ```
 
-If API key is not set, use WebSearch "related searches" and "people also ask" data instead.
+All four arguments are required. Costs 1 credit per keyword. Each entry in the returned `data`
+array has `keyword`, `vol` (monthly volume), `cpc.value` and `cpc.currency`, `competition`
+(0.0-1.0), and `trend` (12 months of `{month, year, value}`).
+
+Populate the brief's metrics table from these fields: Monthly Volume from `vol`, CPC from
+`cpc.currency` + `cpc.value`, Competition from `competition`. A keyword missing from `data` has
+no Keyword Planner coverage -- render "N/A" rather than 0. The `trend` array shows whether the
+keyword is seasonal, which is worth a line in the brief when the swing is large.
+
+If the `mcp__keywords-everywhere__*` tools are unavailable, use WebSearch "related searches" and
+"people also ask" data instead, and render the metrics table as "N/A".
 
 ### 5. Compile Content Brief
 

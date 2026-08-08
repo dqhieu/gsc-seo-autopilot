@@ -84,12 +84,16 @@ Use `AskUserQuestion` to collect:
 - "List blog post categories/tags you use (comma-separated):"
 - Example: "how-to, comparison, guide, tutorial"
 
-### 5. Keywords Everywhere API
+### 5. Keywords Everywhere MCP Server
 
-**Question 9: API Key Validation**
-- Check if `KEYWORDS_EVERYWHERE_API_KEY` env var is set
-- If set: "Keywords Everywhere API key detected. Using default env var name."
-- If not set: "Keywords Everywhere API key not found. The skill will work without it (using GSC + WebSearch), but keyword expansion will be limited. You can add it later to your shell profile."
+**Question 9: MCP Availability**
+- Check whether the `mcp__keywords-everywhere__*` tools are available
+- If available: call `mcp__keywords-everywhere__get_credit_balance` and report the balance, so
+  the user knows their budget before the first expansion run
+- If not available: "Keywords Everywhere MCP server not connected. The skill will work without
+  it (using GSC + WebSearch), but keyword expansion will be limited. To add it, run:
+  `claude mcp add --transport http keywords-everywhere https://mcp.keywordseverywhere.com/mcp -H \"Authorization: Bearer <your-key>\"`
+  then restart Claude Code."
 
 **Question 10: Target Country**
 - "What country should keyword data target?"

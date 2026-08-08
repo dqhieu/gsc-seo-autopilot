@@ -19,17 +19,36 @@ Read `~/.claude/skills/gsc-seo-autopilot/seo-config.yaml`. Parse all values. If 
 Use `mcp__gsc__search_analytics` for the last 28 days:
 
 ```
-site_url: {gsc_property}
-start_date: (28 days ago)
-end_date: (yesterday)
-dimensions: ["query", "page"]
-row_limit: 200
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+dimensions: "query,page"
+rowLimit: 200
 ```
 
-Also use `mcp__gsc__detect_quick_wins` if available:
+Also use `mcp__gsc__detect_quick_wins` if available. `startDate` and `endDate` are required;
+the threshold defaults (position 4-10, CTR <= 2%) are narrower than the categories in step 3,
+so pass them explicitly:
 ```
-site_url: {gsc_property}
+siteUrl: {gsc_property}
+startDate: (28 days ago, YYYY-MM-DD)
+endDate: (yesterday, YYYY-MM-DD)
+positionRangeMin: 5
+positionRangeMax: 20
+minImpressions: 30
+maxCtr: 3
 ```
+
+The tool ANDs all four thresholds, so it returns only the overlap of categories A-C below --
+e.g. it drops a position-8 keyword whose CTR is already 4%, which category A still wants.
+Use its ranked output as a starting point, but derive the categories in step 3 from the
+`search_analytics` rows above, which are authoritative.
+
+Note the tool has no row limit and returns every match, so these widened thresholds can
+produce a very large response on an established site (a mid-size site yielded 278 rows /
+~106KB). Results are pre-sorted by `additionalClicks` descending, so read from the top and
+stop once you have enough for the report. If the response is too large to work with, tighten
+`minImpressions` first -- it cuts the long tail without dropping high-value opportunities.
 
 ### 3. Categorize Opportunities
 

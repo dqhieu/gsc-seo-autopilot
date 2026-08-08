@@ -2,7 +2,7 @@
 name: gsc-seo-autopilot
 description: "Automated weekly SEO pipeline -- GSC monitoring, keyword expansion, blog content creation for any website. Use for SEO analysis, content briefs, quick wins, weekly reports. Arguments: auto, init, weekly, quick-wins, brief, publish."
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 ---
 
 # GSC SEO Autopilot
@@ -36,21 +36,35 @@ Every command MUST start by reading `seo-config.yaml` from this skill's director
 
 If missing, inform user and suggest running `/gsc-seo-autopilot init`.
 
-## Keywords Everywhere API
+## Keywords Everywhere (MCP)
 
-Use inline Node.js scripts. Read API key env var name and regional settings from config:
+Keyword data comes from the hosted Keywords Everywhere MCP server. Auth is handled by the MCP
+client, so no API key is read at run time. If the `mcp__keywords-everywhere__*` tools are
+unavailable, skip keyword expansion and fall back to `WebSearch` -- never fail the run.
 
-```javascript
-const key = process.env[CONFIG.keywords_everywhere_api_key_env];
-if (!key) { console.log('SKIP: API key not set'); process.exit(0); }
-```
+### Tools
 
-### Endpoints
+| Tool | Required args | Returns | Credits |
+|------|--------------|---------|---------|
+| `get_related_keywords` | `keyword`, `num` | `data`: array of keyword strings | 2 per keyword returned |
+| `get_pasf_keywords` | `keyword`, `num` | `data`: array of "People Also Search For" strings | 2 per keyword returned |
+| `get_keyword_data` | `kw`, `country`, `currency`, `dataSource` | `data[]`: `{keyword, vol, cpc:{currency,value}, competition, trend[]}` | 1 per keyword |
+| `get_domain_keywords` | `domain`, `country`, `num` | `data[]`: `{keyword, estimated_monthly_traffic, serp_position}` | 2 per keyword |
+| `get_credit_balance` | -- | array with one integer | free |
 
-1. **`/v1/get_related_keywords`** -- Expand seed keyword into related keywords
-2. **`/v1/get_keyword_data`** -- Get volume/CPC/competition for keyword batch
+Every argument is required -- none have defaults. Note that `get_related_keywords` and
+`get_pasf_keywords` take **only** `keyword` and `num`; `country`, `currency`, and `dataSource`
+do not apply to them and are used solely by `get_keyword_data`.
 
-Substitute `ke_country`, `ke_currency`, `ke_data_source`, `ke_related_limit` from config.
+### Limits and cost
+
+- `get_keyword_data` accepts a maximum of **100 keywords per call**. Chunk longer lists.
+- `num` accepts up to 10,000, but expansion costs 2 credits per keyword *returned*. Pass
+  `ke_related_limit` from config -- never a large literal.
+- Check `get_credit_balance` before a run that expands many seeds.
+
+Map config values to arguments: `ke_country` -> `country`, `ke_currency` -> `currency`,
+`ke_data_source` -> `dataSource`, `ke_related_limit` -> `num`.
 
 ## Blog Writing
 
@@ -58,6 +72,6 @@ Follow `references/blog-writing-guide.md`. Do NOT delegate to external skills.
 
 ## Setup
 
-1. **GSC MCP Server** in `~/.claude/mcp.json` (see README)
-2. **seo-config.yaml** in skill directory (run `/gsc-seo-autopilot init` or copy `seo-config.example.yaml`)
-3. **Keywords Everywhere API key** (optional) as env var
+1. **GSC MCP server** (see README)
+2. **Keywords Everywhere MCP server** (optional, see README)
+3. **seo-config.yaml** in skill directory (run `/gsc-seo-autopilot init` or copy `seo-config.example.yaml`)
